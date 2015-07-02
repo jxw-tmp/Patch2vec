@@ -1,0 +1,7 @@
+fnew = open('nearest_patches_new3_25dim_reduced_vocab.html','wb')
+fnew.write('<html><head></head><body><table><tr><td>Actual Image</td><td></td><td></td><td></td><td></td></tr>')
+with open('nearest_patches_new3_25dim_reduced_vocab.txt','rb') as f:
+	for line in f:
+		words = line.split()
+		fnew.write('<tr><td> <figure> <img src="/home/kundan/Dropbox/computer_vision_umass/elementdiscovery-master/new2_average_patches/'+words[0]+'.jpg" ><figcaption></figcaption></figure></td><td><figure><img src="/home/kundan/Dropbox/computer_vision_umass/elementdiscovery-master/new2_average_patches/'+words[1]+'.jpg" ><figcaption>'+words[2]+'</figcaption></figure></td><td><figure><img src="/home/kundan/Dropbox/computer_vision_umass/elementdiscovery-master/new2_average_patches/'+words[3]+'.jpg" ><figcaption>'+words[4]+'</figcaption></figure></td><td><figure><img src="/home/kundan/Dropbox/computer_vision_umass/elementdiscovery-master/new2_average_patches/'+words[5]+'.jpg" ><figcaption>'+words[6]+'</figcaption></figure></td><td><figure><img src="/home/kundan/Dropbox/computer_vision_umass/elementdiscovery-master/new2_average_patches/'+words[7]+'.jpg" ><figcaption>'+words[8]+'</figcaption></figure></td><td><figure><img src="/home/kundan/Dropbox/computer_vision_umass/elementdiscovery-master/new2_average_patches/'+words[9]+'.jpg" ><figcaption>'+words[10]+'</figcaption></figure></td></tr>\n')
+	fnew.write('</table></body></html>')
