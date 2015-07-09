@@ -20,8 +20,13 @@ function [list_of_image_names, image_classes, all_classes] = get_images_from_sub
 				continue;
 			end
 			pic_count = pic_count + 1;
-			list_of_image_names{pic_count} = strcat(dir_name,'/',new_listing(j).name);
+			list_of_image_names{pic_count} = strcat(dir_name,'/',listing(i).name,'/',new_listing(j).name);
 			image_classes{pic_count} = listing(i).name;
 		end
 	end
+	MIT_data_set = struct();
+	MIT_data_set.image_names = list_of_image_names;
+	MIT_data_set.image_corresponding_class = image_classes;
+	MIT_data_set.class_names = all_classes;
+	save('MIT_indoor_dataset_elements.mat','MIT_data_set');
 end
