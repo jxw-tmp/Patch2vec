@@ -1,4 +1,4 @@
-function [likelihood] = train_on_single_image(image_name,num_clusters)
+function [log_likelihood] = train_on_single_image(image_name,num_clusters)
 	%{
 	Variables:
 
@@ -17,7 +17,7 @@ function [likelihood] = train_on_single_image(image_name,num_clusters)
 	%}
 	global cluster_centers;
 	global gb_embeddings;
-	ALPHA = 0.1;
+	ALPHA = 0.01;
 	%Getting SIFTs from given example image for training and building kd-tree on the SIFTs centers
 	[locs,sifts] = im2sift(image_name);
 	sifts = double(sifts);
@@ -85,10 +85,11 @@ function [likelihood] = train_on_single_image(image_name,num_clusters)
 
 
 	%Calculating gradient update from each pair of word
-	average_log_probab = 0;
+	average_log_probab = 0.0;
 	for num_context = 1:numel(all_contexts)
-		count_el = 1;
-		forward_prob_array= [];
+		% count_el = 1;
+		% forward_prob_array= [];
+		log_likelihood = 0.0;
 		for i = 1: numel(all_contexts{num_context})
 			for j = 1: numel(all_contexts{num_context})
 				if i == j
@@ -109,8 +110,9 @@ function [likelihood] = train_on_single_image(image_name,num_clusters)
 
 				internal_node_embs_dot_v_w_ind1 = internal_node_embs'*v_w_ind1;
 				sigma_internal_sign = [];
-				for k = 1:path_length
-					sigma_internal_sign(k) = (mod(current_internal_node_indices(k),2))*2 - 1;
+				sigma_internal_sign(1) = (mod(ind2,2))*2 - 1;
+				for k = 2:path_length
+					sigma_internal_sign(k) = (mod(current_internal_node_indices(k-1),2))*2 - 1;
 				end
 				sigma_internal_sign = sigma_internal_sign';
 				internal_node_embs_dot_v_w_ind1_sign = internal_node_embs_dot_v_w_ind1 .* sigma_internal_sign;
@@ -118,25 +120,28 @@ function [likelihood] = train_on_single_image(image_name,num_clusters)
 				sigma_internal_node_with_sign = 1./( 1 + sigma_internal_node_with_sign);
 
 		
-				forward_probab = logsumexp(sigma_internal_sign);
+				log_forward_probab = sum(log(sigma_internal_node_with_sign));
+				log_likelihood = log_likelihood + log_forward_probab;
+				forward_probab = exp(log_forward_probab);
 
 				sigma_derivative_with_sign = (sigma_internal_node_with_sign.*(1 - sigma_internal_node_with_sign)).*sigma_internal_sign;
-				grad_ind1 = (1/(2.0*numel(useful_indices)*numel(useful_indices)*forward_probab))*(internal_node_embs*(sigma_derivative_with_sign));
+				grad_ind1 = (1/(2.0*numel(all_contexts{num_context})*numel(all_contexts{num_context})*forward_probab))*(internal_node_embs*(sigma_derivative_with_sign));
 				
-				grad(:,map_index_to_arrpos(ind1)) = grad_ind1;
+				grad(:,map_index_to_arrpos(ind1)) = grad(:,map_index_to_arrpos(ind1)) + grad_ind1;
 				for k = 1:numel(current_internal_node_indices)
-					grad(:,map_index_to_arrpos(current_internal_node_indices(k))) = grad(:,map_index_to_arrpos(current_internal_node_indices(k))) + ((1/(2.0*numel(useful_indices)*numel(useful_indices)*forward_probab))*sigma_derivative_with_sign(k)*v_w_ind1);
+					grad(:,map_index_to_arrpos(current_internal_node_indices(k))) = grad(:,map_index_to_arrpos(current_internal_node_indices(k))) + ((1/(2.0*numel(all_contexts{num_context})*numel(all_contexts{num_context})*forward_probab))*sigma_derivative_with_sign(k)*v_w_ind1);
 				end
-				forward_prob_array(count_el) = forward_probab;
-				count_el = count_el + 1;
+				% forward_prob_array(count_el) = forward_probab;
+				% count_el = count_el + 1;
 			end
 		end
-		average_log_probab = average_log_probab + logsumexp(forward_prob_array);
+		average_log_probab = average_log_probab + log_likelihood/(numel(all_contexts{num_context})*numel(all_contexts{num_context}));
+		break;
 	end
 
-	likelihood = average_log_probab/numel(all_contexts);
-	
-	for i = 1:numel(useful_indices)
+	log_likelihood = average_log_probab/numel(all_contexts);
+
+	for i = 1:numel(useful_grad_indices(i))
 		gb_embeddings(:,useful_grad_indices(i)) = gb_embeddings(:,useful_grad_indices(i)) + ALPHA*(grad(:,i));
 	end
 end

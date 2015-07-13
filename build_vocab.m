@@ -12,7 +12,7 @@ end
 
 numclusters = 4096; % usually a power of 2
 
-numdimensions = 30;
+numdimensions = 2;
 
 global valid_index;
 
