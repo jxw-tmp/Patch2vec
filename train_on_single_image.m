@@ -1,4 +1,4 @@
-function [log_likelihood] = train_on_single_image(image_name,num_clusters)
+function [log_likelihood] = train_on_single_image(image_name,num_clusters,ALPHA)
 	%{
 	Variables:
 
@@ -17,7 +17,6 @@ function [log_likelihood] = train_on_single_image(image_name,num_clusters)
 	%}
 	global cluster_centers;
 	global gb_embeddings;
-	ALPHA = 0.01;
 	%Getting SIFTs from given example image for training and building kd-tree on the SIFTs centers
 	[locs,sifts] = im2sift(image_name);
 	sifts = double(sifts);
