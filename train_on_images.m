@@ -1,7 +1,12 @@
 
-ALPHA = 0.07;
+ALPHA = 0.05
+
+;
 for epoch = 1:10
 	for i = 1:8000
+		if mod(i,100) == 0
+			ALPHA = ALPHA*0.95;
+		end
 		fprintf('Training on image no. %d\n',i);
 		j = 2000 + i;
 		try
@@ -11,6 +16,6 @@ for epoch = 1:10
 			fprintf('Error in converting the image, discarding training on it.');
 		end
 	end
-	save(strcat('embedding_epoch_',num2str(epoch),'.mat'),'gb_embeddings');
+	save(strcat('embedding_epoch_',num2str(numclusters),'_', num2str(epoch),'.mat','gb_embeddings'));
 	ALPHA = ALPHA*0.25;
 end

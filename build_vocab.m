@@ -1,18 +1,18 @@
 run('/home/kundan/cv-libs/vlfeat-0.9.20/toolbox/vl_setup');
 load('MIT_indoor_dataset_elements.mat');
 load('data_partition_train_test_MIT.mat');
-file_names = create_sample_for_vocab_generation(2000,train_set,MIT_data_set.image_names);
-[locs,sifts] = calculate_sift_for_image_set(file_names);
-all_sifts = []
-for i = 1: numel(sifts)
-	if size(sifts{i},1) > 1
-		all_sifts = [all_sifts,sifts{i}];
-	end
-end
+% file_names = create_sample_for_vocab_generation(2000,train_set,MIT_data_set.image_names);
+% [locs,sifts] = calculate_sift_for_image_set(file_names);
+% all_sifts = []
+% for i = 1: numel(sifts)
+% 	if size(sifts{i},1) > 1
+% 		all_sifts = [all_sifts,sifts{i}];
+% 	end
+% end
 
-numclusters = 4096; % usually a power of 2
+numclusters = 8192; % usually a power of 2
 
-numdimensions = 10;
+numdimensions = 2;
 
 global valid_index;
 
@@ -24,7 +24,7 @@ global gb_centers;
 global cluster_centers;
 global gb_embeddings;
 gb_centers = zeros(128,numclusters*2 - 1);
-gb_embeddings = rand(numdimensions,numclusters*2 - 1) - 0.5;
+gb_embeddings = rand(numdimensions,numclusters*2 - 1)*2 - 1;
 
 hiarchical_clustering(all_sifts,1,numclusters);
 valid_index(1) = 1;
